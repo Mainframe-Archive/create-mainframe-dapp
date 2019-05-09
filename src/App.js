@@ -20,6 +20,7 @@ type State = {
   sdkWorking?: boolean,
   account?: string,
   ethBalance?: number,
+  network: string,
 }
 
 const Container = styled.View`
@@ -41,6 +42,11 @@ const Account = styled.View`
 
 const Logo = styled.Image``
 
+const NETWORKS = {
+  '1': 'mainnet',
+  '3': 'ropsten',
+}
+
 export default class App extends Component<Props, State> {
   sdk: MainframeSDK
   web3: Web3
@@ -49,6 +55,7 @@ export default class App extends Component<Props, State> {
     sdkWorking: false,
     account: '',
     ethBalance: 0,
+    network: '0',
   }
 
   constructor() {
@@ -66,19 +73,21 @@ export default class App extends Component<Props, State> {
       this.sdk.ethereum.on('networkChanged', () => {
         this.fetchState()
       })
+      this.fetchState()
     }
-    this.fetchState()
   }
 
   async fetchState() {
+    const network = this.sdk.ethereum.networkVersion
     const accounts = await this.web3.eth.getAccounts()
-    if (accounts.length) {
+    if (accounts.length && network) {
       const account = accounts[0]
       const weiBalance = await this.web3.eth.getBalance(account)
       const ethBalance = this.web3.utils.fromWei(weiBalance)
       this.setState({
         account,
         ethBalance,
+        network,
       })
     }
   }
@@ -108,6 +117,14 @@ export default class App extends Component<Props, State> {
           </Row>
           {this.state.sdkWorking && this.state.account ? (
             <Account>
+              <Row size={2}>
+                <Column>
+                  <Text bold>Network</Text>
+                </Column>
+                <Column>
+                  <Text variant="ellipsis">{NETWORKS[this.state.network]}</Text>
+                </Column>
+              </Row>
               <Row size={2}>
                 <Column>
                   <Text bold>Wallet address</Text>
