@@ -53,12 +53,16 @@ export default class App extends Component<Props, State> {
 
   constructor() {
     super()
-    this.sdk = new MainframeSDK()
-    this.web3 = new Web3(this.sdk.ethereum.web3Provider)
+    try {
+      this.sdk = new MainframeSDK()
+      this.web3 = new Web3(this.sdk.ethereum.web3Provider)
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   componentDidMount() {
-    if (this.sdk.ethereum.web3Provider !== null) {
+    if (this.sdk && this.sdk.ethereum.web3Provider !== null) {
       this.setState({ sdkWorking: true })
       this.sdk.ethereum.on('accountsChanged', () => {
         this.fetchState()
@@ -66,8 +70,8 @@ export default class App extends Component<Props, State> {
       this.sdk.ethereum.on('networkChanged', () => {
         this.fetchState()
       })
+      this.fetchState()
     }
-    this.fetchState()
   }
 
   async fetchState() {
@@ -136,8 +140,11 @@ export default class App extends Component<Props, State> {
           <Row size={1}>
             <Column>
               <Text variant="center">
-                Access <Text variant="code">mainframe.com/developers</Text> and
-                learn to build on Mainframe.
+                Access{' '}
+                <a href="https://mainframeos.com/developers">
+                  <Text variant="code">mainframeos.com/developers</Text>
+                </a>{' '}
+                and learn to build on Mainframe.
               </Text>
             </Column>
           </Row>
